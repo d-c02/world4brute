@@ -70,16 +70,20 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_btcbx"]
+height = 1.0
+
 [node name="Player" type="CharacterBody3D" unique_id=1148425339 node_paths=PackedStringArray("m_Camera")]
 script = ExtResource("1_4ntmi")
-m_Camera = NodePath("Camera3D")
+m_Camera = NodePath("Camera")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=259828864]
+[node name="StandHitbox" type="CollisionShape3D" parent="." unique_id=259828864]
+unique_name_in_owner = true
 shape = SubResource("CapsuleShape3D_hvfyp")
 
 [node name="LeftHandAnchor" type="Node3D" parent="." unique_id=1333664789 node_paths=PackedStringArray("m_sprite")]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0.153507, -0.85990906)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0.153507, -0.59292376)
 script = ExtResource("1_l8h54")
 m_sprite = NodePath("LeftHand")
 
@@ -93,7 +97,7 @@ sprite_frames = SubResource("SpriteFrames_vtle1")
 
 [node name="RightHandAnchor" type="Node3D" parent="." unique_id=1759319379 node_paths=PackedStringArray("m_sprite")]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.153507, -0.85990906)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.153507, -0.59292376)
 script = ExtResource("1_l8h54")
 m_sprite = NodePath("RightHand")
 
@@ -104,8 +108,9 @@ no_depth_test = true
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_00tjw")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1936332668]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.509, 0)
+[node name="Camera" type="Camera3D" parent="." unique_id=1936332668]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="Control" type="Control" parent="." unique_id=1203871433]
 layout_mode = 3
@@ -127,4 +132,10 @@ texture_filter = 1
 scale = Vector2(3, 3)
 sprite_frames = SubResource("SpriteFrames_fhl08")
 animation = &"Active"
-frame_progress = 0.6752537
+frame_progress = 0.2983367
+
+[node name="CrouchHitbox" type="CollisionShape3D" parent="." unique_id=1399999013]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("CapsuleShape3D_btcbx")
+disabled = true

@@ -1,6 +1,23 @@
 extends CharacterBody3D
 
 var m_WalkSpeed: float = 6.0
+var m_WalkAccel: float = 40.0
+var m_WalkFriction: float = 80.0
+var m_StandingCamPos: float = 0.5
+@onready var m_StandHitbox: CollisionShape3D = %StandHitbox
+
+var m_CrouchSpeed: float = 3.0
+var m_CrouchAccel = 40.0
+var m_CrouchFriction: float = 60.0
+var m_CrouchCamPos: float = 0.0
+@onready var m_CrouchHitbox: CollisionShape3D = %CrouchHitbox
+var m_Crouching: bool = false
+
+var m_GrabAccel: float = 30.0
+
+var m_AirAccel: float = 20.0
+var m_AirFriction: float = 20.0
+var m_AirSpeed: float = 9.0
 
 @export var m_Camera: Camera3D
 
@@ -9,7 +26,7 @@ var m_TerminalVelocity: float = -10.0
 var m_Gravity: float = -10.0
 var m_MouseSensitivity: float = 0.15
 var m_MaxCameraRotationUp: float = 90.0
-var m_MaxCameraRotationDown: float = -90.0
+var m_MaxCameraRotationDown: float = -89.9
 var m_GrabRange: float = 2.25
 var m_GrabRangeBuffer: float = 0.1
 
@@ -55,6 +72,18 @@ func _physics_process(delta):
 
 	if Input.is_action_just_released("grab_right"):
 		m_RightHand.set_grab(false)
+		
+	if Input.is_action_just_pressed("crouch"):
+		m_Crouching = true
+		m_CrouchHitbox.disabled = false
+		m_StandHitbox.disabled = true
+		m_Camera.transform.origin.y = m_CrouchCamPos
+	
+	if Input.is_action_just_released("crouch"):
+		m_Crouching = false
+		m_CrouchHitbox.disabled = true
+		m_StandHitbox.disabled = false
+		m_Camera.transform.origin.y = m_StandingCamPos
 
 	var direction: Vector3 = Vector3.ZERO
 
@@ -86,9 +115,6 @@ func _physics_process(delta):
 		if m_TargetVelocity.y < m_TerminalVelocity:
 			m_TargetVelocity.y -= 2 * m_Gravity * delta
 
-		if m_LeftHand.get_grab() or m_RightHand.get_grab():
-			pass
-
 	else:
 
 		m_TargetVelocity.y = 0
@@ -98,10 +124,19 @@ func _physics_process(delta):
 			
 
 	if direction.length() > 0:
-
-		m_TargetVelocity.x = direction.x * m_WalkSpeed
-		m_TargetVelocity.z = direction.z * m_WalkSpeed
-
+		if (is_on_floor()):
+			if (m_Crouching):
+				m_TargetVelocity.x += direction.x * m_CrouchAccel * delta
+				m_TargetVelocity.z += direction.z * m_CrouchAccel * delta
+			else:
+				m_TargetVelocity.x += direction.x * m_WalkAccel * delta
+				m_TargetVelocity.z += direction.z * m_WalkAccel * delta
+		elif m_LeftHand.get_grab() or m_RightHand.get_grab():
+			m_TargetVelocity.x += direction.x * m_GrabAccel * delta
+			m_TargetVelocity.z += direction.z * m_GrabAccel * delta
+		else:
+			m_TargetVelocity.x += direction.x * m_AirAccel * delta
+			m_TargetVelocity.z += direction.z * m_AirAccel * delta
 	else:
 
 		var NoYVel = velocity
@@ -111,12 +146,24 @@ func _physics_process(delta):
 		m_TargetVelocity = NoYVel.lerp(Vector3.ZERO, delta * 20)
 		m_TargetVelocity.y = y
 
+	if (is_on_floor()):
+		if m_Crouching:
+			if m_TargetVelocity.length() > m_CrouchSpeed:
+				m_TargetVelocity -= m_CrouchFriction * m_TargetVelocity.normalized() * delta
+		else:
+			if m_TargetVelocity.length() > m_WalkSpeed:
+				m_TargetVelocity -= m_WalkFriction * m_TargetVelocity.normalized() * delta
+	else:
+		if m_TargetVelocity.length() > m_AirSpeed:
+				m_TargetVelocity -= m_AirFriction * m_TargetVelocity.normalized() * delta
+		
 	#m_DebugLabel.text = str((m_TargetVelocity * 100).round() / 100.0)
 	#apply_grab_constraints(delta)
 	apply_grab_constraints(delta)
 	velocity = m_TargetVelocity
 	move_and_slide()
 
+# TODO: STOP PLAYER FROM GOING TOO FAR AND NEEDING TO CORRECT
 func apply_grab_constraints(delta):
 
 	var grab_points: Array = []
