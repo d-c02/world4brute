@@ -79,7 +79,7 @@ shape = SubResource("CapsuleShape3D_hvfyp")
 
 [node name="LeftHandAnchor" type="Node3D" parent="." unique_id=1333664789 node_paths=PackedStringArray("m_sprite")]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0.153507, -1.182)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0.153507, -0.85990906)
 script = ExtResource("1_l8h54")
 m_sprite = NodePath("LeftHand")
 
@@ -93,7 +93,7 @@ sprite_frames = SubResource("SpriteFrames_vtle1")
 
 [node name="RightHandAnchor" type="Node3D" parent="." unique_id=1759319379 node_paths=PackedStringArray("m_sprite")]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.153507, -1.182)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.153507, -0.85990906)
 script = ExtResource("1_l8h54")
 m_sprite = NodePath("RightHand")
 
@@ -105,7 +105,7 @@ texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_00tjw")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1936332668]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5085213, -0.48708194)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.509, 0)
 
 [node name="Control" type="Control" parent="." unique_id=1203871433]
 layout_mode = 3
@@ -127,4 +127,4 @@ texture_filter = 1
 scale = Vector2(3, 3)
 sprite_frames = SubResource("SpriteFrames_fhl08")
 animation = &"Active"
-frame_progress = 0.55153614
+frame_progress = 0.6752537

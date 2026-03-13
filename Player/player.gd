@@ -118,7 +118,7 @@ func _physics_process(delta):
 	move_and_slide()
 
 func apply_grab_constraints(delta):
-	
+
 	var grab_points: Array = []
 	
 	if m_LeftHand.get_grab():
@@ -127,21 +127,35 @@ func apply_grab_constraints(delta):
 	if m_RightHand.get_grab():
 		grab_points.append(m_RightHand.get_grab_point())
 	
-	if len(grab_points) == 0:
+	if grab_points.size() == 0:
 		return
-		
-	if (Input.is_action_just_pressed("jump")):
+
+	if Input.is_action_just_pressed("jump"):
 		m_LeftHand.set_grab(false)
 		m_RightHand.set_grab(false)
 		m_TargetVelocity.y += m_JumpSpeed
 		return
-	# Pull player toward center of grab points
-	var center := Vector3.ZERO
-	for p in grab_points:
-		center += p
-	center /= grab_points.size()
 
-	# Rope constraint for each hand
+	var predicted_position: Vector3 = global_position + m_TargetVelocity * delta
+
+	for p in grab_points:
+
+		var arm: Vector3 = predicted_position - p
+		var dist := arm.length()
+
+		if dist <= 0.0001:
+			continue
+
+		var dir := arm / dist
+
+		if dist > MAX_ARM_LENGTH:
+
+			var correction := dist - MAX_ARM_LENGTH
+			predicted_position -= dir * correction
+
+	# Apply corrected position
+	global_position = lerp(global_position, predicted_position, delta * 10)
+
 	for p in grab_points:
 
 		var arm: Vector3 = global_position - p
@@ -152,10 +166,10 @@ func apply_grab_constraints(delta):
 
 		var dir := arm / dist
 
-		# If stretched, prevent moving farther away
 		if dist >= MAX_ARM_LENGTH:
+
 			var outward_speed := m_TargetVelocity.dot(dir)
-			# Remove velocity that extends the rope
+
 			if outward_speed > 0:
 				m_TargetVelocity -= dir * outward_speed
 
