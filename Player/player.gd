@@ -1,12 +1,12 @@
 extends CharacterBody3D
 
-var m_WalkSpeed: float = 6.0
+var m_WalkSpeed: float = 10.0
 var m_WalkAccel: float = 40.0
 var m_WalkFriction: float = 80.0
 var m_StandingCamPos: float = 0.5
 @onready var m_StandHitbox: CollisionShape3D = %StandHitbox
 
-var m_CrouchSpeed: float = 3.0
+var m_CrouchSpeed: float = 5.0
 var m_CrouchAccel = 40.0
 var m_CrouchFriction: float = 60.0
 var m_CrouchCamPos: float = 0.0
@@ -17,7 +17,7 @@ var m_GrabAccel: float = 30.0
 
 var m_AirAccel: float = 20.0
 var m_AirFriction: float = 20.0
-var m_AirSpeed: float = 9.0
+var m_AirSpeed: float = 10.0
 
 @export var m_Camera: Camera3D
 

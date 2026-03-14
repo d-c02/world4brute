@@ -132,7 +132,7 @@ texture_filter = 1
 scale = Vector2(3, 3)
 sprite_frames = SubResource("SpriteFrames_fhl08")
 animation = &"Active"
-frame_progress = 0.2983367
+frame_progress = 0.029992746
 
 [node name="CrouchHitbox" type="CollisionShape3D" parent="." unique_id=1399999013]
 unique_name_in_owner = true
