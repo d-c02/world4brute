@@ -4,6 +4,7 @@ var m_WalkSpeed: float = 10.0
 var m_WalkAccel: float = 40.0
 var m_WalkFriction: float = 80.0
 var m_StandingCamPos: float = 0.5
+var m_StandHandsPos: float = 0.15
 @onready var m_StandHitbox: CollisionShape3D = %StandHitbox
 
 var m_CrouchSpeed: float = 5.0
@@ -12,6 +13,8 @@ var m_CrouchFriction: float = 60.0
 var m_CrouchCamPos: float = 0.0
 @onready var m_CrouchHitbox: CollisionShape3D = %CrouchHitbox
 var m_Crouching: bool = false
+var m_CrouchHandsPos: float = -0.35
+@onready var m_HandsAnchor: Node3D = %HandsAnchor
 
 var m_GrabAccel: float = 30.0
 
@@ -77,12 +80,14 @@ func _physics_process(delta):
 		m_Crouching = true
 		m_CrouchHitbox.disabled = false
 		m_StandHitbox.disabled = true
+		m_HandsAnchor.transform.origin.y = m_CrouchHandsPos
 		m_Camera.transform.origin.y = m_CrouchCamPos
 	
 	if Input.is_action_just_released("crouch"):
 		m_Crouching = false
 		m_CrouchHitbox.disabled = true
 		m_StandHitbox.disabled = false
+		m_HandsAnchor.transform.origin.y = m_StandHandsPos
 		m_Camera.transform.origin.y = m_StandingCamPos
 
 	var direction: Vector3 = Vector3.ZERO
