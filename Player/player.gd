@@ -4,7 +4,6 @@ var m_WalkSpeed: float = 10.0
 var m_WalkAccel: float = 40.0
 var m_WalkFriction: float = 80.0
 var m_StandingCamPos: float = 0.5
-var m_StandHandsPos: float = 0.15
 @onready var m_StandHitbox: CollisionShape3D = %StandHitbox
 
 var m_CrouchSpeed: float = 5.0
@@ -13,7 +12,6 @@ var m_CrouchFriction: float = 60.0
 var m_CrouchCamPos: float = 0.0
 @onready var m_CrouchHitbox: CollisionShape3D = %CrouchHitbox
 var m_Crouching: bool = false
-var m_CrouchHandsPos: float = -0.35
 @onready var m_HandsAnchor: Node3D = %HandsAnchor
 
 var m_GrabAccel: float = 30.0
@@ -33,9 +31,14 @@ var m_MaxCameraRotationDown: float = -89.9
 var m_GrabRange: float = 2.25
 var m_GrabRangeBuffer: float = 0.1
 
+var m_throwStrength: float = 2000.0
+var m_EnemyRagdoll = preload("res://enemy_ragdoll.tscn")
+
 @onready var m_Reticle: AnimatedSprite2D = %Reticle
 @onready var m_LeftHand: Hand = %LeftHandAnchor
+@onready var m_LeftHandAnim: AnimatedSprite3D = %LeftHandAnim
 @onready var m_RightHand: Hand = %RightHandAnchor
+@onready var m_RightHandAnim: AnimatedSprite3D = %RightHandAnim
 
 var m_JumpSpeed: float = 5.0
 
@@ -61,33 +64,64 @@ func _physics_process(delta):
 
 	# Do a single check grab earlier to simplify if either is pressed?
 	if Input.is_action_just_pressed("grab_left"):
-		if CheckGrab():
-			m_LeftHand.set_grab_point(CheckGrabVector())
-			m_LeftHand.set_grab(true)
+		var grab = CheckGrab()
+		if grab != null:
+			if grab is Enemy:
+				m_LeftHand.set_holding_enemy(true)
+				m_LeftHandAnim.animation = "holding_enemy"
+				grab.queue_free()
+			else:
+				m_LeftHand.set_grab_point(CheckGrabVector())
+				m_LeftHand.set_grab(true)
+				m_LeftHandAnim.animation = "grabbing"
 
 	if Input.is_action_just_pressed("grab_right"):
-		if CheckGrab():
-			m_RightHand.set_grab_point(CheckGrabVector())
-			m_RightHand.set_grab(true)
+		var grab = CheckGrab()
+		if grab != null:
+			if grab is Enemy:
+				m_RightHand.set_holding_enemy(true)
+				m_RightHandAnim.animation = "holding_enemy"
+				grab.queue_free()
+			else:
+				m_RightHand.set_grab_point(CheckGrabVector())
+				m_RightHand.set_grab(true)
+				m_RightHandAnim.animation = "grabbing"
 
 	if Input.is_action_just_released("grab_left"):
-		m_LeftHand.set_grab(false)
-
+		if m_LeftHand.get_grab() or m_LeftHand.get_grabbing():
+			m_LeftHand.set_grab(false)
+			m_LeftHandAnim.animation = "default"
+		elif m_LeftHand.get_holding_enemy():
+			m_LeftHandAnim.animation = "default"
+			m_LeftHand.set_holding_enemy(false)
+			var enemyRagdoll: RigidBody3D = m_EnemyRagdoll.instantiate()
+			add_child(enemyRagdoll)
+			enemyRagdoll.global_position = global_position
+			enemyRagdoll.top_level = true
+			enemyRagdoll.apply_force(-m_Camera.global_basis.z * m_throwStrength)
 	if Input.is_action_just_released("grab_right"):
-		m_RightHand.set_grab(false)
-		
+		if m_RightHand.get_grab() or m_RightHand.get_grabbing():
+			m_RightHand.set_grab(false)
+			m_RightHandAnim.animation = "default"
+		elif m_RightHand.get_holding_enemy():
+			m_RightHandAnim.animation = "default"
+			m_RightHand.set_holding_enemy(false)
+			var enemyRagdoll: RigidBody3D = m_EnemyRagdoll.instantiate()
+			add_child(enemyRagdoll)
+			enemyRagdoll.global_position = global_position
+			enemyRagdoll.top_level = true
+			enemyRagdoll.apply_force(-m_Camera.global_basis.z * m_throwStrength)
+	
 	if Input.is_action_just_pressed("crouch"):
 		m_Crouching = true
 		m_CrouchHitbox.disabled = false
 		m_StandHitbox.disabled = true
-		m_HandsAnchor.transform.origin.y = m_CrouchHandsPos
 		m_Camera.transform.origin.y = m_CrouchCamPos
 	
 	if Input.is_action_just_released("crouch"):
 		m_Crouching = false
 		m_CrouchHitbox.disabled = true
 		m_StandHitbox.disabled = false
-		m_HandsAnchor.transform.origin.y = m_StandHandsPos
 		m_Camera.transform.origin.y = m_StandingCamPos
 
 	var direction: Vector3 = Vector3.ZERO
@@ -183,10 +217,15 @@ func apply_grab_constraints(delta):
 		return
 
 	if Input.is_action_just_pressed("jump"):
-		m_LeftHand.set_grab(false)
-		m_RightHand.set_grab(false)
 		m_TargetVelocity.y += m_JumpSpeed
-		return
+		if (!is_on_floor()):
+			if m_LeftHand.get_grab():
+				m_LeftHand.set_grab(false)
+				m_LeftHandAnim.animation = "default"
+			if m_RightHand.get_grab():
+				m_RightHand.set_grab(false)
+				m_RightHandAnim.animation = "default"
+			return
 
 	var predicted_position: Vector3 = global_position + m_TargetVelocity * delta
 
@@ -225,9 +264,9 @@ func apply_grab_constraints(delta):
 			if outward_speed > 0:
 				m_TargetVelocity -= dir * outward_speed
 
-func _process(delta):
+func _process(_delta):
 
-	if CheckGrab():
+	if CheckGrab() != null:
 		m_Reticle.animation = "Active"
 	else:
 		m_Reticle.animation = "Inactive"
@@ -276,9 +315,9 @@ func CheckGrab():
 
 		var collider = result["collider"]
 		var target = collider
-		return true
+		return target
 
-	return false
+	return null
 
 
 func CheckGrabVector():
@@ -295,7 +334,7 @@ func CheckGrabVector():
 
 		var collider = result["collider"]
 
-		var target = collider
+		#var target = collider
 
 		if "position" in result:
 			return result["position"]

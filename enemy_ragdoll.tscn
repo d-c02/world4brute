@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://cmab5hedd7ix8"]
+
+[ext_resource type="Script" uid="uid://bkbj8l2jx3xfv" path="res://enemy_ragdoll.gd" id="1_katf0"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_yvslx"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_katf0"]
+radius = 0.55
+
+[sub_resource type="BoxMesh" id="BoxMesh_yvslx"]
+size = Vector3(0.735, 0.425, 0.295)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_katf0"]
+albedo_color = Color(1, 0, 0, 1)
+
+[node name="EnemyRagdoll" type="RigidBody3D" unique_id=1153639129]
+collision_layer = 4
+collision_mask = 5
+script = ExtResource("1_katf0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1475123731]
+mesh = SubResource("SphereMesh_yvslx")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=651434795]
+shape = SubResource("SphereShape3D_katf0")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1873277054]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.4)
+mesh = SubResource("BoxMesh_yvslx")
+surface_material_override/0 = SubResource("StandardMaterial3D_katf0")
+
+[node name="FloorRaycast" type="RayCast3D" parent="." unique_id=374197081]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2561077, 0)
+top_level = true
+
+[node name="Area3D" type="Area3D" parent="." unique_id=795205118]
+unique_name_in_owner = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1921206603]
+shape = SubResource("SphereShape3D_katf0")

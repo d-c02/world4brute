@@ -3,6 +3,7 @@ class_name Hand extends Node3D
 
 var m_grabbing: bool = false
 var m_grabbed: bool = false
+var m_holdingEnemy: bool = false
 @export var m_sprite: AnimatedSprite3D
 var m_targetPos: Vector3
 var m_grabSpeed: float = 10.0
@@ -26,6 +27,15 @@ func get_grab_point() -> Vector3:
 
 func get_grab() -> bool:
 	return m_grabbed
+	
+func get_grabbing() -> bool:
+	return m_grabbing
+	
+func get_holding_enemy() -> bool:
+	return m_holdingEnemy
+	
+func set_holding_enemy(holding: bool):
+	m_holdingEnemy = holding
 
 func _physics_process(delta: float) -> void:
 	if not m_grabbing:
