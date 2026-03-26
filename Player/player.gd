@@ -20,10 +20,13 @@ var m_AirAccel: float = 20.0
 var m_AirFriction: float = 20.0
 var m_AirSpeed: float = 10.0
 
+var m_DashSpeed: float = 10.0
+var m_GroundPoundSpeed: float = 100.0
+
 @export var m_Camera: Camera3D
 
 var m_TargetVelocity: Vector3
-var m_TerminalVelocity: float = -10.0
+var m_TerminalVelocity: float = -50.0
 var m_Gravity: float = -10.0
 var m_MouseSensitivity: float = 0.15
 var m_MaxCameraRotationUp: float = 90.0
@@ -146,13 +149,22 @@ func _physics_process(delta):
 
 	if direction.length() > 1:
 		direction = direction.normalized()
-
+	
+	if Input.is_action_just_pressed("dash"):
+		m_TargetVelocity += direction * m_DashSpeed
+	
 	if !is_on_floor():
 
-		m_TargetVelocity.y += m_Gravity * delta
 
-		if m_TargetVelocity.y < m_TerminalVelocity:
-			m_TargetVelocity.y -= 2 * m_Gravity * delta
+		if m_TargetVelocity.y > m_TerminalVelocity:
+			m_TargetVelocity.y += m_Gravity * delta
+		
+		
+		if Input.is_action_pressed("ground_pound"):
+			m_TargetVelocity += Vector3.DOWN * m_GroundPoundSpeed * delta
+		else:
+			if m_TargetVelocity.y < m_TerminalVelocity:
+				m_TargetVelocity.y -= 2 * m_Gravity * delta
 
 	else:
 
