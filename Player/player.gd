@@ -69,7 +69,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("grab_left"):
 		var grab = CheckGrab()
 		if grab != null:
-			if grab is Enemy:
+			if grab is Enemy or grab is EnemyRagdoll:
 				m_LeftHand.set_holding_enemy(true)
 				m_LeftHandAnim.animation = "holding_enemy"
 				grab.queue_free()
@@ -81,7 +81,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("grab_right"):
 		var grab = CheckGrab()
 		if grab != null:
-			if grab is Enemy:
+			if grab is Enemy or grab is EnemyRagdoll:
 				m_RightHand.set_holding_enemy(true)
 				m_RightHandAnim.animation = "holding_enemy"
 				grab.queue_free()

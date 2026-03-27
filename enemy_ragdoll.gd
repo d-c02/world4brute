@@ -1,4 +1,4 @@
-extends RigidBody3D
+class_name EnemyRagdoll extends RigidBody3D
 var m_EnemyPackedScene = preload("res://enemy.tscn")
 var m_StandUpThreshold = 1.0
 var m_respawnCountdown = 0.0
@@ -10,7 +10,7 @@ func _ready() -> void:
 	m_Hitbox.body_entered.connect(on_collision)
 
 func on_collision(other: Node3D):
-	if other is Enemy:
+	if other is Enemy or other is EnemyRagdoll:
 		other.queue_free()
 		queue_free()
 
