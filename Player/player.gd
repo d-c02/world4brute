@@ -36,6 +36,7 @@ var m_GrabRangeBuffer: float = 0.1
 
 var m_throwStrength: float = 2000.0
 var m_EnemyRagdoll = preload("res://enemy_ragdoll.tscn")
+var m_ThrowReboundVelocity: float = 20.0
 
 @onready var m_Reticle: AnimatedSprite2D = %Reticle
 @onready var m_LeftHand: Hand = %LeftHandAnchor
@@ -102,6 +103,8 @@ func _physics_process(delta):
 			enemyRagdoll.global_position = global_position
 			enemyRagdoll.top_level = true
 			enemyRagdoll.apply_force(-m_Camera.global_basis.z * m_throwStrength)
+			if (!is_on_floor()):
+				m_TargetVelocity += m_Camera.global_basis.z * m_ThrowReboundVelocity
 	if Input.is_action_just_released("grab_right"):
 		if m_RightHand.get_grab() or m_RightHand.get_grabbing():
 			m_RightHand.set_grab(false)
@@ -114,7 +117,8 @@ func _physics_process(delta):
 			enemyRagdoll.global_position = global_position
 			enemyRagdoll.top_level = true
 			enemyRagdoll.apply_force(-m_Camera.global_basis.z * m_throwStrength)
-	
+			if (!is_on_floor()):
+				m_TargetVelocity += m_Camera.global_basis.z * m_ThrowReboundVelocity
 	if Input.is_action_just_pressed("crouch"):
 		m_Crouching = true
 		m_CrouchHitbox.disabled = false
@@ -194,7 +198,8 @@ func _physics_process(delta):
 		NoYVel.y = 0
 
 		var y = m_TargetVelocity.y
-		m_TargetVelocity = NoYVel.lerp(Vector3.ZERO, delta * 20)
+		if (is_on_floor()):
+			m_TargetVelocity = NoYVel.lerp(Vector3.ZERO, delta * 20)
 		m_TargetVelocity.y = y
 
 	if (is_on_floor()):
